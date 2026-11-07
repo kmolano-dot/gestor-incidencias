@@ -43,6 +43,8 @@ def crear_incidencia():
     prioridad = request.form.get("prioridad", "")
     if not titulo or not descripcion:
         return "El título y la descripción son obligatorios", 400
+    if len(titulo) > 150:
+        return "El título no puede superar 150 caracteres", 400
     if prioridad not in ("Baja", "Media", "Alta"):
         return "La prioridad seleccionada no es válida", 400
     nueva_incidencia = {
@@ -88,6 +90,8 @@ def editar_incidencia(incidencia_id):
     # Validar la información recibida.
     if not titulo or not descripcion:
         return "Título y descripción obligatorios", 400
+    if len(titulo) > 150:
+        return "El título no puede superar 150 caracteres", 400
     if prioridad not in ("Baja", "Media", "Alta"):
         return "Prioridad no válida", 400
     # Buscar y actualizar la incidencia.
