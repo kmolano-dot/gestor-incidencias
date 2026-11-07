@@ -4,6 +4,8 @@ El repositorio del equipo es [gestor-incidencias](https://github.com/kmolano-dot
 
 ## Flujo propuesto
 
+No trabajes ni hagas commits directamente en `main`. Usa `main` para obtener la versión actualizada y crea una rama propia para cada funcionalidad, corrección, prueba o cambio de documentación. Integra los cambios mediante un pull request hacia `main`.
+
 1. Clona el repositorio y actualiza la rama principal:
 
    ```bash
@@ -27,7 +29,7 @@ El repositorio del equipo es [gestor-incidencias](https://github.com/kmolano-dot
    git push -u origin feature/registro-consulta-incidencias
    ```
 
-4. En GitHub, abre un **pull request** desde tu rama hacia `main`. Explica qué agregaste y cómo se puede comprobar. Pide a un compañero que lo revise y, una vez aprobado por el equipo, intégralo.
+4. En GitHub, abre un **pull request** desde tu rama hacia `main` y completa la plantilla. Explica qué cambiaste y cómo se puede comprobar. Pide a un compañero que lo revise y, una vez aprobado por el equipo, intégralo.
 5. Después de integrar, actualiza tu copia de `main` antes de empezar otra tarea. Si tu rama quedó desactualizada mientras trabajabas, coordina la resolución de conflictos con el equipo.
 
 Cada integrante debe hacer sus propios commits con su cuenta de GitHub para que sus aportes queden identificados. Antes de hacer `git add .`, revisa que no estés incluyendo contraseñas, archivos de entorno, bases de datos locales ni otros archivos que no deban compartirse.
