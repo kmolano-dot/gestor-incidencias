@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Incidencias</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+    <main class="contenedor">
+        <header class="encabezado">
+            <div>
+                <h1>Gestor de Incidencias</h1>
+                <p>Registro y seguimiento de errores de software</p>
+            </div>
+        </header>
+
+        <section class="layout-principal">
+            <!-- COLUMNA IZQUIERDA -->
+            <aside class="panel-lateral">
+                <section class="tarjeta">
+                    <h2>Registrar incidencia</h2>
+
+                    <form action="{{ url_for('crear_incidencia') }}" method="POST" class="formulario">
+                        <label for="titulo">Título</label>
+                        <input type="text" id="titulo" name="titulo" maxlength="150" required>
+
+                        <label for="descripcion">Descripción</label>
+                        <textarea id="descripcion" name="descripcion" rows="5" required></textarea>
+
+                        <label for="prioridad">Prioridad</label>
+                        <select id="prioridad" name="prioridad">
+                            <option value="Baja">Baja</option>
+                            <option value="Media">Media</option>
+                            <option value="Alta">Alta</option>
+                        </select>
+
+                        <button type="submit" class="btn btn-primario">Registrar incidencia</button>
+                    </form>
+                </section>
+
+                <section class="tarjeta">
+                    <h2>Filtro</h2>
+
+                    <form action="{{ url_for('inicio') }}" method="GET" class="formulario">
+                        <label for="filtro_estado">Filtrar por estado</label>
+                        <select id="filtro_estado" name="estado">
+                            {% for opcion in ["Todos", "Pendiente", "En proceso", "Resuelta"] %}
+                            <option value="{{ opcion }}" {% if filtro_estado==opcion %}selected{% endif %}>
+                                {{ opcion }}
+                            </option>
+                            {% endfor %}
+                        </select>
+
+                        <button type="submit" class="btn btn-secundario">Aplicar filtro</button>
+                    </form>
+                </section>
+            </aside>
+
+            <!-- COLUMNA DERECHA -->
+            <section class="contenido-principal">
+                <section class="tarjeta tarjeta-listado">
+                    <div class="cabecera-listado">
+                        <h2>Incidencias registradas</h2>
+                        <span class="contador">
+                            {{ incidencias|length }} registro(s)
+                        </span>
+                    </div>
+
+                    {% if incidencias %}
+                    <div class="lista-incidencias {% if incidencias|length >= 3 %}lista-con-scroll{% endif %}">
+                        {% for incidencia in incidencias %}
+                        <article class="incidencia">
+                            <div class="incidencia-header">
+                                <h3>{{ incidencia.titulo }}</h3>
+                                <span class="badge prioridad prioridad-{{ incidencia.prioridad|lower }}">
+                                    {{ incidencia.prioridad }}
+                                </span>
+                            </div>
+
+                            <p class="descripcion-incidencia">{{ incidencia.descripcion }}</p>
+
+                            <div class="meta-incidencia">
+                                <span class="badge estado estado-{{ incidencia.estado|lower|replace(' ', '-') }}">
+                                    {{ incidencia.estado }}
+                                </span>
+                            </div>
+
+                            <div class="bloque-formulario">
+                                <form action="{{ url_for('actualizar_estado', incidencia_id=incidencia.id) }}"
+                                    method="POST" class="formulario-inline">
+                                    <label>Actualizar estado</label>
+                                    <select name="estado">
+                                        <option value="Pendiente" {% if incidencia.estado=="Pendiente" %}selected{%
+                                            endif %}>
+                                            Pendiente
+                                        </option>
+                                        <option value="En proceso" {% if incidencia.estado=="En proceso" %}selected{%
+                                            endif %}>
+                                            En proceso
+                                        </option>
+                                        <option value="Resuelta" {% if incidencia.estado=="Resuelta" %}selected{% endif
+                                            %}>
+                                            Resuelta
+                                        </option>
+                                    </select>
+                                    <button type="submit" class="btn btn-primario btn-pequeno">Guardar estado</button>
+                                </form>
+                            </div>
+
+                            <details class="editor-desplegable">
+                                <summary>Editar incidencia</summary>
+
+                                <form action="{{ url_for('editar_incidencia', incidencia_id=incidencia.id) }}"
+                                    method="POST" class="formulario formulario-edicion">
+
+                                    <label for="titulo-{{ incidencia.id }}">Título</label>
+                                    <input id="titulo-{{ incidencia.id }}" type="text" name="titulo" maxlength="150"
+                                        value="{{ incidencia.titulo }}" required>
+
+                                    <label for="descripcion-{{ incidencia.id }}">Descripción</label>
+                                    <textarea id="descripcion-{{ incidencia.id }}" name="descripcion" rows="4"
+                                        required>{{ incidencia.descripcion }}</textarea>
+
+                                    <label for="prioridad-{{ incidencia.id }}">Prioridad</label>
+                                    <select id="prioridad-{{ incidencia.id }}" name="prioridad">
+                                        {% for opcion in ["Baja", "Media", "Alta"] %}
+                                        <option value="{{ opcion }}" {% if incidencia.prioridad==opcion %}selected{%
+                                            endif %}>
+                                            {{ opcion }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+
+                                    <button type="submit" class="btn btn-secundario btn-pequeno">Guardar
+                                        cambios</button>
+                                </form>
+                            </details>
+
+                            <form action="{{ url_for('eliminar_incidencia', incidencia_id=incidencia.id) }}"
+                                method="POST" onsubmit="return confirm('¿Deseas borrar esta incidencia?')"
+                                class="form-eliminar">
+                                <button type="submit" class="btn btn-peligro btn-pequeno">Eliminar incidencia</button>
+                            </form>
+                        </article>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="estado-vacio">
+                        <p>No hay incidencias registradas.</p>
+                        <span>Cuando registres una incidencia aparecerá aquí.</span>
+                    </div>
+                    {% endif %}
+                </section>
+            </section>
+        </section>
+    </main>
+</body>
+
+</html>
