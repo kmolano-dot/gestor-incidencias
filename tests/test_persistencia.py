@@ -1,32 +1,50 @@
+import time
+
+import psycopg
 import pytest
+from psycopg.rows import dict_row
 
 import app as modulo_app
 
-pytestmark = pytest.mark.skip(
-    reason="pendiente: requiere la integracion de Flask con PostgreSQL"
-)
+
+def test_la_aplicacion_ya_no_guarda_en_memoria():
+    assert not hasattr(modulo_app, "incidencias")
+    assert not hasattr(modulo_app, "siguiente_id")
 
 
-@pytest.mark.postgres
-def test_la_incidencia_no_se_guarda_en_memoria(crear_incidencia):
+def test_la_incidencia_queda_guardada_en_la_base(crear_incidencia, url_base_datos):
+    crear_incidencia(titulo="Incidencia persistida",
+                     descripcion="Debe sobrevivir al proceso")
+    with psycopg.connect(url_base_datos, row_factory=dict_row) as otra_conexion:
+        with otra_conexion.cursor() as cursor:
+            cursor.execute("SELECT titulo FROM incidencias ORDER BY id")
+            titulos = [registro["titulo"] for registro in cursor.fetchall()]
+    assert titulos == ["Incidencia persistida"]
+
+
+def test_la_base_asigna_las_fechas(crear_incidencia, leer_incidencias):
     crear_incidencia()
-    assert modulo_app.incidencias == []
+    registro = leer_incidencias()[0]
+    assert registro["fecha_creacion"] is not None
+    assert registro["fecha_actualizacion"] is not None
 
 
-@pytest.mark.postgres
-def test_la_base_asigna_la_fecha_de_creacion(crear_incidencia, leer_incidencias):
-    crear_incidencia()
-    assert leer_incidencias()[0]["fecha_creacion"] is not None
-
-
-@pytest.mark.postgres
 def test_la_fecha_de_actualizacion_cambia_al_editar(cliente, crear_incidencia,
                                                     leer_incidencias):
     crear_incidencia()
     fecha_inicial = leer_incidencias()[0]["fecha_actualizacion"]
+    time.sleep(0.01)
     cliente.post("/incidencias/1/editar", data={
         "titulo": "Titulo corregido",
         "descripcion": "Descripcion corregida",
         "prioridad": "Alta",
     })
-    assert leer_incidencias()[0]["fecha_actualizacion"] > fecha_inicial
+    registro = leer_incidencias()[0]
+    assert registro["fecha_actualizacion"] > fecha_inicial
+    assert registro["fecha_creacion"] < registro["fecha_actualizacion"]
+
+
+def test_sin_variable_de_entorno_no_hay_conexion(monkeypatch):
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    with pytest.raises(RuntimeError):
+        modulo_app.conectar_db()
