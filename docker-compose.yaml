@@ -1,0 +1,39 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: gestor_incidencias_db
+    restart: always
+    environment:
+      POSTGRES_DB: gestor_incidencias
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/gestor_incidencias.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d gestor_incidencias"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    container_name: gestor_incidencias_web
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=gestor_incidencias
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres_password
+      - DATABASE_URL=postgresql://postgres:postgres_password@db:5432/gestor_incidencias
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
