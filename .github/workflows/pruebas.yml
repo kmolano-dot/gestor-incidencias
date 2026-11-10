@@ -30,9 +30,6 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
-    env:
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/gestor_incidencias_test
-
     steps:
       - name: Descargar el codigo del repositorio
         uses: actions/checkout@v4
@@ -49,6 +46,8 @@ jobs:
           pip install -r requirements.txt
 
       - name: Ejecutar las pruebas con cobertura
+        env:
+          TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/gestor_incidencias_test
         run: |
           pytest --cov=app --cov-report=term-missing --cov-report=xml --junitxml=resultados-pruebas.xml
 
