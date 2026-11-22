@@ -53,9 +53,9 @@ Para no repetir la preparación en cada prueba dejé las piezas comunes en `test
 
 Cada prueba empieza con la tabla vacía porque la fixture `cliente` ejecuta un `TRUNCATE ... RESTART IDENTITY` antes y después. Así los identificadores siempre arrancan en 1 y una prueba no depende de lo que hizo la anterior.
 
-![Figura 3. Fixtures en conftest.py](03-conftest.png)
+![Figura 3. Preparación de las pruebas en conftest.py](03-conftest.png)
 
-*Figura 3. Preparación compartida de las pruebas.*
+*Figura 3. Constantes del archivo y comprobación de la variable `TEST_DATABASE_URL`.*
 
 ## Paso 4. Configurar Pytest
 
