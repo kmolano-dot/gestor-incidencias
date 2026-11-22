@@ -33,7 +33,7 @@ Antes de escribir código revisé las rutas de `app.py` y armé un archivo de pr
 | `test_actualizar_estado.py` | Cambio de estado | 4 |
 | `test_salud.py` | Ruta de comprobación del servicio | 3 |
 
-En total quedaron **37 funciones de prueba**. Varias usan `@pytest.mark.parametrize` para repetir el mismo caso con distintos datos sin duplicar código.
+En total quedaron **37 funciones de prueba**, que al ejecutarse generan **56 casos**, porque varias usan `@pytest.mark.parametrize` para repetir el mismo escenario con distintos datos sin duplicar codigo.
 
 ![Figura 2. Archivos de prueba en el editor](02-archivos-tests.png)
 
@@ -136,7 +136,7 @@ Ambos aportes se integraron mediante pull request siguiendo el flujo acordado en
 
 ## Resultado y límites de esta entrega
 
-Quedó una suite de 37 pruebas que cubre las operaciones del gestor y que se ejecuta sola en cada cambio del repositorio, con informe de resultados y de cobertura.
+Quedó una suite de 37 funciones de prueba (56 casos) que cubre las operaciones del gestor y que se ejecuta sola en cada cambio del repositorio, con informe de resultados y de cobertura.
 
 Conviene aclarar dos cosas:
 
