@@ -121,7 +121,7 @@ La tercera comprobación puede parecer repetida, pero cubre el caso de que la ca
 
 *Figura 6. Las pruebas se niegan a ejecutarse contra una base distinta.*
 
-**Cómo leer esta figura.** La salida muestra `56 errors`, no `56 failed`, y esa diferencia es importante:
+**Cómo leer esta figura.** La salida muestra `56 errors` y no `56 failed`, que no es lo mismo.
 
 | Resultado | Qué significa |
 | --- | --- |

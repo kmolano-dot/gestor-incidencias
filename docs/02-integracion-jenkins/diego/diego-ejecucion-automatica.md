@@ -70,7 +70,7 @@ Conservé la etapa de verificación de Uriel y agregué tres etapas más:
 | Esperar base de datos | Reintenta la conexión hasta 30 veces antes de rendirse |
 | Pruebas Pytest | Ejecuta las pruebas con cobertura e informe JUnit |
 
-La etapa de espera resuelve un problema concreto: PostgreSQL tarda unos segundos en aceptar conexiones y, sin ella, el pipeline fallaba de forma intermitente según quién arrancara primero.
+La etapa de espera la tuve que agregar porque PostgreSQL tarda unos segundos en aceptar conexiones y, sin ella, el pipeline fallaba unas veces sí y otras no, según quién arrancara primero.
 
 En el bloque `post` agregué la publicación del informe JUnit y el archivado de `resultados-pruebas.xml` y `coverage.xml`, para que los resultados queden consultables desde la interfaz y no solo en el texto de la consola.
 
@@ -80,7 +80,7 @@ El trabajo se configuró como **Pipeline script from SCM**, apuntando al reposit
 
 Como disparador elegí **Consultar repositorio (SCM)** con la frecuencia `H/2 * * * *`, es decir, Jenkins revisa el repositorio cada dos minutos y lanza una ejecución solo si encuentra commits nuevos.
 
-**Por qué este evento y no un webhook.** La opción *GitHub hook trigger* reacciona al instante, pero exige que GitHub pueda alcanzar el servidor Jenkins por internet. Nuestro servidor corre en `localhost`, de modo que GitHub no tiene cómo contactarlo sin exponer el equipo con una herramienta adicional. La consulta periódica logra el mismo resultado sin esa dependencia; la diferencia es que la ejecución empieza hasta dos minutos después del envío en lugar de inmediatamente.
+Escogí este evento y no un webhook por una razón práctica. La opción *GitHub hook trigger* reacciona al instante, pero necesita que GitHub pueda alcanzar el servidor Jenkins por internet, y el nuestro corre en `localhost`. Para usarla tocaría exponer el equipo con una herramienta adicional, lo que agrega una dependencia frágil justo antes de la entrega. Con la consulta periódica se consigue lo mismo, aunque la ejecución empieza hasta dos minutos después del envío en lugar de enseguida.
 
 ![Figura 6. Disparador configurado](06-disparador-automatico.png)
 
@@ -111,7 +111,7 @@ git push
 
 *Figura 9. Jenkins indica que se ejecutó porque detectó cambios, y muestra el commit que la originó.*
 
-La propia pantalla de la ejecución deja constancia de la causa: *«Ejecutado porque se detectaron cambios en el repositorio»*, junto con la revisión `fdd7cef` y el autor del commit.
+La misma pantalla de la ejecución deja constancia de por qué se lanzó, con el mensaje *«Ejecutado porque se detectaron cambios en el repositorio»*, la revisión `fdd7cef` y el autor del commit.
 
 ![Figura 10. Pruebas ejecutadas automáticamente](10-resultado-pytest-automatico.png)
 
