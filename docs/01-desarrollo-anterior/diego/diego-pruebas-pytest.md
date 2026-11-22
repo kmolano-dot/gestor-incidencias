@@ -121,6 +121,24 @@ La tercera comprobación puede parecer repetida, pero cubre el caso de que la ca
 
 *Figura 6. Las pruebas se niegan a ejecutarse contra una base distinta.*
 
+**Cómo leer esta figura.** La salida muestra `56 errors`, no `56 failed`, y esa diferencia es importante:
+
+| Resultado | Qué significa |
+| --- | --- |
+| `failed` | La prueba se ejecutó y encontró un problema en el código |
+| `errors` | La prueba no llegó a ejecutarse porque algo falló antes |
+
+El `UsageError` se lanza mientras se prepara la fixture, es decir **antes de abrir ninguna conexión**. Por eso las 56 pruebas se detienen en 1.43 segundos en lugar de ejecutarse en los 6.43 segundos que tardan normalmente.
+
+Es el resultado esperado, no un fallo del proyecto. Apuntar por descuido a `gestor_incidencias` habría ejecutado el `TRUNCATE` de las fixtures sobre la base de desarrollo del equipo y habría borrado sus datos. La comparación de las dos ejecuciones lo resume:
+
+| Valor de `TEST_DATABASE_URL` | Resultado | Estado de la base |
+| --- | --- | --- |
+| `...gestor_incidencias_test` | `56 passed` en 6.43 s | Se usa y se limpia, como corresponde |
+| `...gestor_incidencias` | `56 errors` en 1.43 s | Queda intacta |
+
+Queda una observación pendiente de mejora: el mensaje se repite una vez por prueba, lo que genera una salida larga para un único problema. Sería más limpio detener la sesión una sola vez al inicio. La protección cumple su objetivo, pero el aviso admite pulirse.
+
 ## Paso 7. Integrar los cambios
 
 Ambos aportes se integraron mediante pull request siguiendo el flujo acordado en `CONTRIBUTING.md`.
