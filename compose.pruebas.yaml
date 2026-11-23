@@ -4,7 +4,7 @@
 services:
   jenkins:
     build:
-      context: ./docker/jenkins
+      context: ./jenkins
     container_name: gestor_incidencias_jenkins
     restart: unless-stopped
     ports:

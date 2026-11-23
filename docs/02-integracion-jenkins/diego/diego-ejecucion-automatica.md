@@ -21,7 +21,7 @@ git switch -c test/pipeline-pytest
 
 ## Paso 2. Levantar el entorno de integración continua
 
-La imagen oficial `jenkins/jenkins:lts` no incluye Python, así que las pruebas no podrían ejecutarse sobre ella. Preparé una imagen propia en `docker/jenkins/Dockerfile` que agrega Python, `python3-venv` y `libpq-dev`, además de los complementos necesarios.
+La imagen oficial `jenkins/jenkins:lts` no trae Python, así que las pruebas no podrían correr sobre ella. En lugar de crear una imagen aparte, reutilicé el `jenkins/Dockerfile` que ya había dejado Silva y le agregué lo que faltaba: Python, `python3-venv`, `python3-pip` y `libpq-dev` para el conector de PostgreSQL, más los complementos `junit`, `credentials-binding` y `timestamper` que necesita el pipeline. Así el equipo mantiene una sola imagen de Jenkins.
 
 El archivo `compose.pruebas.yaml` levanta dos servicios: el servidor Jenkins y una base PostgreSQL exclusiva para las pruebas, ambos en la misma red.
 
