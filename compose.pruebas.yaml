@@ -7,6 +7,12 @@ services:
       context: ./jenkins
     container_name: gestor_incidencias_jenkins
     restart: unless-stopped
+    # jenkins/security.groovy crea el usuario administrador con estas variables.
+    # Compose se niega a arrancar si faltan en .env, para que Jenkins nunca
+    # quede sin inicio de sesion.
+    environment:
+      JENKINS_ADMIN_USER: ${JENKINS_ADMIN_USER:?Define JENKINS_ADMIN_USER en el archivo .env}
+      JENKINS_ADMIN_PASSWORD: ${JENKINS_ADMIN_PASSWORD:?Define JENKINS_ADMIN_PASSWORD en el archivo .env}
     ports:
       - "8080:8080"
     volumes:
