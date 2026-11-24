@@ -1,0 +1,40 @@
+# Entorno de integracion continua para ejecutar las pruebas automatizadas.
+# Levanta el servidor Jenkins y una base de datos exclusiva para las pruebas.
+# Se mantiene separado de docker-compose.yaml para no afectar la base de desarrollo.
+services:
+  jenkins:
+    build:
+      context: ./jenkins
+    container_name: gestor_incidencias_jenkins
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+    networks:
+      - ci-net
+
+  postgres-pruebas:
+    image: postgres:16-alpine
+    container_name: gestor_incidencias_db_pruebas
+    restart: unless-stopped
+    # Se expone el puerto para poder ejecutar las pruebas tambien en local.
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_password
+      POSTGRES_DB: gestor_incidencias_test
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d gestor_incidencias_test"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ci-net
+
+volumes:
+  jenkins_home:
+
+networks:
+  ci-net:
