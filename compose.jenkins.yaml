@@ -6,6 +6,13 @@ services:
     container_name: gestor_incidencias_jenkins
     restart: unless-stopped
     user: root
+    environment:
+      JENKINS_ADMIN_USER: ${JENKINS_ADMIN_USER}
+      JENKINS_ADMIN_PASSWORD: ${JENKINS_ADMIN_PASSWORD}
+      GITHUB_REPO_URL: ${GITHUB_REPO_URL}
+      GITHUB_BRANCH: ${GITHUB_BRANCH:-main}
+      GITHUB_USER: ${GITHUB_USER:-}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
     ports:
       - "8080:8080"
       - "50000:50000"

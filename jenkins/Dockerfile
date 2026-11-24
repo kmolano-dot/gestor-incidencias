@@ -39,5 +39,5 @@ RUN jenkins-plugin-cli --plugins \
     credentials-binding \
     timestamper
 
-# Copiar script de creación de usuario
-COPY security.groovy /usr/share/jenkins/ref/init.groovy.d/security.groovy
+# Copiar scripts de inicialización (usuario admin y jobs de GitHub)
+COPY *.groovy /usr/share/jenkins/ref/init.groovy.d/
