@@ -1,0 +1,29 @@
+# Alternativa para agentes Jenkins existentes que trabajan en jenkins-lab-net.
+# NO inicia un segundo servidor Jenkins ni utiliza la base de desarrollo.
+# Uso opcional: docker compose -f compose.agente-postgres-pruebas.yaml up -d
+# Requiere POSTGRES_TEST_PASSWORD en un archivo .env NO versionado.
+services:
+  postgres-pruebas:
+    image: postgres:16-alpine
+    container_name: gestor_incidencias_db_pruebas
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_TEST_PASSWORD:?Definir POSTGRES_TEST_PASSWORD en .env local}
+      POSTGRES_DB: gestor_incidencias_test
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d gestor_incidencias_test"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - postgres_pruebas_agente_data:/var/lib/postgresql/data
+    networks:
+      - jenkins-lab-net
+
+volumes:
+  postgres_pruebas_agente_data:
+
+networks:
+  jenkins-lab-net:
+    external: true
