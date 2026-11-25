@@ -1,0 +1,308 @@
+% Compilador: pdfLaTeX. En Overleaf, selecciona este archivo como documento principal.
+% Para incorporar una captura, súbela a la carpeta del .tex con el nombre
+% indicado en el recuadro. También puedes cambiar el tercer argumento de \evidencia.
+% Compila dos veces si ejecutas pdfLaTeX localmente para actualizar índice y referencias.
+\documentclass[12pt,letterpaper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage{newtxtext}
+\usepackage[letterpaper,margin=1in,headheight=15pt,headsep=0.28in]{geometry}
+\usepackage{setspace}
+\usepackage{ragged2e}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{graphicx}
+\usepackage{booktabs,tabularx,array}
+\usepackage{xurl}
+\usepackage[hidelinks]{hyperref}
+
+\doublespacing
+\RaggedRight
+\setlength{\RaggedRightParindent}{0.5in}
+\setlength{\parindent}{0.5in}
+\setlength{\parskip}{0pt}
+\setlength{\emergencystretch}{2em}
+\setcounter{secnumdepth}{0}
+\setcounter{tocdepth}{2}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyhead[R]{\thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+}
+
+\titleformat{\section}[block]{\normalfont\normalsize\bfseries\centering}{}{0pt}{}
+\titleformat{\subsection}[block]{\normalfont\normalsize\bfseries}{}{0pt}{}
+\titlespacing{\section}{0pt}{\baselineskip}{0pt}
+\titlespacing{\subsection}{0pt}{\baselineskip}{0pt}
+
+\newcommand{\tituloinforme}{Gestor de incidencias de software con integración continua}
+\newcommand{\fechaentrega}{Noviembre de 2026} % Añade el día si lo exige la asignatura.
+\newcommand{\entrada}[1]{\par\noindent\hangindent=0.5in\hangafter=1 #1\par}
+\newcommand{\notafigura}[1]{\par\noindent\textit{Nota.} #1\par}
+\newcommand{\evidencia}[4]{%
+  \par\medskip\noindent
+  \begin{minipage}{\textwidth}
+    \refstepcounter{figure}\label{#1}%
+    \noindent\textbf{Figura \thefigure}\par
+    \noindent\textit{#2}\par
+    \medskip\noindent
+    \IfFileExists{#3}{%
+      \includegraphics[width=\linewidth,height=3.15in,keepaspectratio]{#3}%
+    }{%
+      \fbox{\parbox[c][1.45in][c]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{%
+        \centering\small Espacio para la captura\par
+        \texttt{#3}\par
+      }}%
+    }%
+    \medskip
+    \notafigura{#4}%
+  \end{minipage}\par
+}
+\newcommand{\anexo}[2]{%
+  \clearpage
+  \section*{Anexo #1\\#2}%
+  \addcontentsline{toc}{section}{Anexo #1. #2}%
+}
+
+\hypersetup{pdftitle={Gestor de incidencias de software con integración continua},
+  pdfauthor={Grupo 5 - Politécnico Grancolombiano}}
+
+\begin{document}
+
+\vspace*{3\baselineskip}
+\begin{center}
+  \textbf{\tituloinforme}\par
+  \textbf{Primera entrega: GitHub y Docker}\par
+  \vspace{\baselineskip}
+  Lina Bedoya Peña, Jorge Silva Álvarez, Kevin Andrés Molano Gamarra,\\
+  Uriel Andrés Rincón y Diego Fernando Gaitán Avella\par
+  Facultad de Diseño, Ingeniería e Innovación, Politécnico Grancolombiano\par
+  Integración Continua, Grupo 5\par
+  Edward Reyes Corredor\par
+  \fechaentrega\par
+\end{center}
+
+\clearpage
+\renewcommand{\contentsname}{Tabla de contenido}
+\tableofcontents
+
+\clearpage
+\phantomsection
+\addcontentsline{toc}{section}{Introducción}
+\begin{center}
+  \textbf{\tituloinforme}
+\end{center}
+
+El equipo desarrolló una aplicación web para registrar incidencias de software, asignarles prioridad y seguir sus cambios de estado. El proyecto sirvió para organizar el trabajo en ramas de Git, integrar una aplicación Flask con PostgreSQL y describir su entorno de ejecución con Docker Compose. El repositorio también incorpora pruebas automáticas que verifican el comportamiento de la aplicación cuando se proponen cambios (Bedoya Peña et al., 2026).
+
+El informe abarca la evolución del prototipo, la implementación integrada en el repositorio y el aporte de documentación y coordinación de Kevin Andrés Molano Gamarra. El estado del repositorio y de las pruebas corresponde al 9 de noviembre de 2026. El Anexo A describe el contrato de datos y el Anexo B reúne los espacios para las evidencias del proceso.
+
+\section{Objetivos}
+
+\subsection{Objetivo general}
+
+Desarrollar un gestor de incidencias con Flask y PostgreSQL y organizar su construcción colaborativa en GitHub, con un entorno reproducible mediante Docker Compose y verificaciones automatizadas mediante GitHub Actions.
+
+\subsection{Objetivos específicos}
+
+\begin{itemize}
+  \item Implementar el registro, la consulta, el filtrado, la edición, el cambio de estado y la eliminación de incidencias.
+  \item Integrar el esquema de PostgreSQL y comunicar la aplicación y la base de datos mediante Docker Compose.
+  \item Automatizar la comprobación de las operaciones del gestor con Pytest y una base de datos dedicada.
+  \item Registrar los aportes del equipo con ramas, revisiones y solicitudes de cambio, y documentar el uso del proyecto.
+\end{itemize}
+
+\section{Descripción y alcance del proyecto}
+
+El gestor organiza en un solo listado la información que se necesita para dar seguimiento a un error de software. Cada registro contiene un título, una descripción, una prioridad y un estado. El usuario puede elegir una prioridad baja, media o alta. Las incidencias nuevas quedan pendientes y se pueden marcar como en proceso o resueltas. Desde el listado se pueden aplicar filtros, editar los datos y eliminar registros previa confirmación en el navegador.
+
+La entrega cubre la interfaz web, el almacenamiento relacional, la ejecución de dos servicios con Docker Compose y la automatización de pruebas. Se documentan por separado las comprobaciones manuales del prototipo y las verificaciones del sistema integrado.
+
+\section{Marco conceptual}
+
+\subsection{Integración continua y control de versiones}
+
+La integración continua incorpora cambios con frecuencia y ejecuta comprobaciones automáticas para detectar problemas antes de integrar nuevas contribuciones. Git conserva el historial del proyecto y permite trabajar en ramas independientes. En GitHub, un \textit{pull request} reúne los cambios propuestos, la discusión, las revisiones y el estado de las comprobaciones. GitHub Actions permite ejecutar esas comprobaciones a partir de eventos del repositorio (GitHub, s. f.-a, s. f.-b).
+
+\subsection{Aplicación web, persistencia y contenedores}
+
+Flask asocia peticiones HTTP con funciones de Python y permite generar HTML a partir de plantillas (Pallets, s. f.). En el gestor, PostgreSQL almacena las incidencias y Psycopg ejecuta las consultas que necesita Flask. Docker Compose define los servicios y crea una red en la que cada contenedor puede localizar a los demás por el nombre del servicio (Docker, s. f.).
+
+\section{Diseño e implementación}
+
+\subsection{Interfaz y rutas}
+
+El navegador presenta los formularios y el listado generado con Jinja a partir de \texttt{templates/index.html}. Los estilos están en \texttt{static/styles.css}. En \texttt{app.py}, Flask recibe los formularios, valida los campos, ejecuta las consultas y devuelve una respuesta o redirige al listado. La Tabla~\ref{tab:rutas} resume las rutas del sistema integrado. Las Figuras~\ref{fig:prototipo} a~\ref{fig:ui-eliminar} corresponden a la evolución de la interfaz.
+
+\par\medskip\noindent
+\begin{minipage}{\textwidth}
+  \refstepcounter{table}\label{tab:rutas}
+  \noindent\textbf{Tabla \thetable}\par
+  \noindent\textit{Rutas HTTP del gestor}\par
+  \begin{spacing}{1.15}
+  \noindent\begin{tabularx}{\linewidth}{@{} l >{\raggedright\arraybackslash}p{2.48in} >{\raggedright\arraybackslash}X @{}}
+    \toprule
+    \textbf{Método} & \textbf{Ruta} & \textbf{Operación} \\
+    \midrule
+    GET & \texttt{/} & Lista o filtra por estado. \\
+    POST & \texttt{/incidencias} & Crea una incidencia. \\
+    POST & \texttt{/incidencias/<id>/editar} & Edita título, descripción y prioridad. \\
+    POST & \texttt{/incidencias/<id>/estado} & Cambia el estado. \\
+    POST & \texttt{/incidencias/<id>/eliminar} & Elimina una incidencia. \\
+    GET & \texttt{/salud} & Comprueba que Flask responde. \\
+    \bottomrule
+  \end{tabularx}
+  \end{spacing}
+  \notafigura{La ruta \texttt{/salud} comprueba el servicio Flask. PostgreSQL tiene su propia comprobación con \texttt{pg\_isready}.}
+\end{minipage}\par\medskip
+
+El servidor exige un título y una descripción con contenido, limita el título a 150 caracteres y valida los valores de estado y prioridad. Los datos inválidos producen una respuesta HTTP 400. Si el identificador no existe, la edición, la actualización de estado y la eliminación responden con HTTP 404. Una modificación exitosa redirige al listado con HTTP 302.
+
+\subsection{Persistencia con PostgreSQL}
+
+El prototipo guardaba los registros en una lista de Python y perdía su contenido cuando se reiniciaba Flask. El sistema integrado lee la conexión desde \texttt{DATABASE\_URL}, consulta PostgreSQL con parámetros y conserva los registros en la tabla \texttt{public.incidencias}. El script \texttt{database/gestor\_incidencias.sql} define restricciones para los valores permitidos e índices para estado y prioridad. PostgreSQL asigna el identificador y las fechas al crear cada incidencia. Un disparador actualiza la fecha de modificación cuando cambia un registro.
+
+Por ejemplo, al registrar una incidencia el navegador envía un formulario a \texttt{/incidencias}. Flask valida los datos, ejecuta la inserción con Psycopg y redirige a la página principal. La siguiente petición consulta PostgreSQL y presenta el registro en el listado. El Anexo A especifica los campos que intervienen en ese recorrido.
+
+\subsection{Dockerización y comunicación de servicios}
+
+El archivo \texttt{dockerfile} instala las dependencias y ejecuta Flask sobre una imagen de Python 3.10. En \texttt{docker-compose.yaml}, el servicio \texttt{web} publica el puerto 5000 y el servicio \texttt{db} utiliza PostgreSQL 18 Alpine y publica el 5432. Dentro de la red de Compose, Flask se conecta a \texttt{db:5432}. El servicio web espera a que la comprobación de disponibilidad de PostgreSQL sea satisfactoria.
+
+En la primera inicialización del volumen, la imagen de PostgreSQL ejecuta el script de la base de datos. El volumen \texttt{postgres\_data} conserva los registros entre recreaciones de los contenedores. Para levantar el entorno se copia \texttt{.env.example} a \texttt{.env}, se completan las variables de conexión y se ejecuta \texttt{docker compose up --build -d}. El estado de los servicios se consulta con \texttt{docker compose ps}. Las Figuras~\ref{fig:docker-config} y~\ref{fig:docker-estado} corresponden a la configuración y al estado del entorno. La Figura~\ref{fig:persistencia} reserva un espacio para la comprobación manual de que un registro permanece al reiniciar \texttt{web}.
+
+\section{Pruebas e integración continua}
+
+\subsection{Comprobaciones manuales}
+
+Durante el desarrollo inicial se comprobó desde el navegador el registro, el listado, el filtro por estado, la edición y la eliminación. El registro de Flask mostró redirecciones HTTP 302 para operaciones exitosas seguidas de peticiones GET con respuesta HTTP 200. También se comprobó que crear o editar con un título de 151 caracteres devolvía HTTP 400. Estas comprobaciones corresponden al prototipo de Flask.
+
+\subsection{Pruebas automatizadas y aislamiento}
+
+Pytest comprueba la creación, la edición, el cambio de estado, la eliminación, el listado, los filtros, la persistencia, las fechas y la ruta \texttt{/salud}. La configuración de pruebas exige \texttt{TEST\_DATABASE\_URL} y valida tanto el nombre declarado como el nombre de la base a la que llega la conexión. Solo si el destino es \texttt{gestor\_incidencias\_test} se recrean la tabla y su función de actualización. Las pruebas que usan el cliente Flask vacían la tabla y reinician sus identificadores antes y después de cada caso.
+
+El flujo \texttt{.github/workflows/pruebas.yml} se ejecuta con los \textit{pull requests} y al enviar cambios a \texttt{main}. Utiliza un servicio PostgreSQL 16 y ejecuta una matriz con Python 3.11 y 3.12. Cada trabajo genera un informe JUnit y un archivo XML de cobertura. GitHub Actions registró resultados satisfactorios en ambas versiones tras incorporar el aislamiento (ejecución \href{https://github.com/kmolano-dot/gestor-incidencias/actions/runs/42731745804}{42731745804}) y tras fusionar la actualización del README (ejecución \href{https://github.com/kmolano-dot/gestor-incidencias/actions/runs/42734010046}{42734010046}). La Figura~\ref{fig:acciones} corresponde a los resultados de la matriz.
+
+\section{Organización del equipo y control de versiones}
+
+\subsection{Responsabilidades y aportes}
+
+Uriel Andrés Rincón desarrolló la aplicación Flask y su interfaz. Lina Bedoya Peña definió el esquema de PostgreSQL. Jorge Silva Álvarez preparó Docker Compose y la comunicación de los contenedores. Diego Fernando Gaitán Avella desarrolló y adaptó las pruebas automatizadas y su ejecución en GitHub Actions. Kevin Andrés Molano Gamarra organizó el repositorio, documentó el flujo de colaboración y contribuyó al aislamiento de la base de pruebas.
+
+El historial registra la incorporación de la guía de colaboración y la plantilla de revisión (PR \#1), la aplicación Flask (PR \#2), el esquema SQL (PR \#3), las pruebas iniciales (PR \#4), la conexión entre Flask y PostgreSQL (PR \#5), Docker Compose (PR \#8) y las pruebas sobre PostgreSQL (PR \#9). La rama \texttt{main} también contiene el ajuste de aislamiento del PR \#10 y la actualización del README del PR \#12 (Bedoya Peña et al., 2026). Las Figuras~\ref{fig:repo} a~\ref{fig:pr-flask} corresponden a la vista del repositorio y a los primeros aportes del equipo.
+
+\subsection{Aporte de Kevin Andrés Molano Gamarra}
+
+El aporte inicial consistió en crear el repositorio compartido, invitar a los integrantes y documentar el proceso para trabajar con ramas y revisiones. En el PR \#1 se incorporaron \texttt{CONTRIBUTING.md}, la plantilla de \textit{pull request} y un README con el propósito del proyecto y las responsabilidades. La plantilla pide explicar el cambio y cómo comprobarlo, de modo que el revisor tenga la información necesaria antes de aprobar. El borrador del equipo registra que la regla de protección de \texttt{main} pasó de dos aprobaciones a una. La Figura~\ref{fig:regla} reserva un espacio para mostrar la configuración y la fecha de la captura.
+
+El segundo aporte fue separar la base de datos de la aplicación de la utilizada por Pytest mediante \texttt{TEST\_DATABASE\_URL}. El \href{https://github.com/kmolano-dot/gestor-incidencias/pull/10}{PR \#10}, dirigido a \texttt{test/pruebas-con-postgresql}, incorporó la validación de la base de destino antes de recrear o vaciar los objetos de prueba. El ajuste figura en \texttt{main} en el commit \texttt{ea474d7}. La Figura~\ref{fig:pr-aislamiento} corresponde a esa revisión.
+
+Por último, en la rama \texttt{codex/actualizar-readme}, el commit \texttt{573d6a2} amplió el README con los pasos de arranque en Docker Compose y en el equipo, la configuración de PostgreSQL, las rutas HTTP, el procedimiento de pruebas y los artefactos de GitHub Actions (Molano Gamarra, 2026). El equipo fusionó la actualización en \texttt{main} mediante el \href{https://github.com/kmolano-dot/gestor-incidencias/pull/12}{PR \#12}, en el commit \texttt{d59a9d3}. La Figura~\ref{fig:readme} corresponde a ese cambio de documentación.
+
+\section{Conclusiones}
+
+La aplicación integra una interfaz para gestionar incidencias con un esquema de PostgreSQL que valida sus datos y registra sus fechas. Docker Compose reúne la aplicación y la base de datos en un mismo entorno y define cómo se comunican, mientras que el volumen permite conservar los registros entre recreaciones de los contenedores.
+
+La automatización permite repetir las comprobaciones del gestor con dos versiones de Python. Separar la base de pruebas reduce el riesgo de que la preparación y la limpieza de Pytest afecten los datos de la aplicación. El historial de Git, los \textit{pull requests} y el README permiten rastrear los aportes del equipo y reproducir el entorno.
+
+\clearpage
+\section{Referencias}
+
+\entrada{Bedoya Peña, L., Silva Álvarez, J., Molano Gamarra, K. A., Rincón, U. A., \& Gaitán Avella, D. F. (2026). \textit{Gestor de incidencias} (commit d59a9d3) [Código fuente]. GitHub. \url{https://github.com/kmolano-dot/gestor-incidencias/tree/d59a9d3e6886c05bdc856953b2a9820a0ad62f29}}
+
+\entrada{Docker. (s. f.). \textit{Networking in Compose}. Docker Docs. \url{https://docs.docker.com/compose/how-tos/networking/}}
+
+\entrada{GitHub. (s. f.-a). \textit{About pull requests}. GitHub Docs. \url{https://docs.github.com/en/pull-requests/get-started/about-pull-requests}}
+
+\entrada{GitHub. (s. f.-b). \textit{Understanding GitHub Actions}. GitHub Docs. \url{https://docs.github.com/en/actions/get-started/understand-github-actions}}
+
+\entrada{Molano Gamarra, K. A. (2026, 9 de noviembre). \textit{Docs: Actualizar el README con la configuración, las rutas y las pruebas del gestor} [Commit de Git]. GitHub. \url{https://github.com/kmolano-dot/gestor-incidencias/commit/573d6a2}}
+
+\entrada{Pallets. (s. f.). \textit{Quickstart}. Flask Documentation. \url{https://flask.palletsprojects.com/en/stable/quickstart/}}
+
+\anexo{A}{Contrato de integración entre Flask y PostgreSQL}
+\setcounter{table}{0}
+\renewcommand{\thetable}{A\arabic{table}}
+\renewcommand{\theHtable}{A.\arabic{table}}
+
+La tabla \texttt{public.incidencias} reúne los campos que usa Flask y las marcas de tiempo que administra PostgreSQL. Flask envía el título, la descripción y la prioridad al crear un registro. PostgreSQL asigna el identificador, el estado inicial y las fechas. El cambio de estado se procesa en su propia ruta.
+
+\par\medskip\noindent
+\begin{minipage}{\textwidth}
+  \refstepcounter{table}
+  \noindent\textbf{Tabla \thetable}\par
+  \noindent\textit{Campos de la tabla de incidencias}\par
+  \begin{spacing}{1.15}
+  \noindent\begin{tabularx}{\linewidth}{@{} l l >{\raggedright\arraybackslash}X @{}}
+    \toprule
+    \textbf{Campo} & \textbf{Tipo SQL} & \textbf{Regla} \\
+    \midrule
+    \texttt{id} & \texttt{BIGINT} & Identidad autogenerada y clave primaria. \\
+    \texttt{titulo} & \texttt{VARCHAR(150)} & Obligatorio y con contenido. \\
+    \texttt{descripcion} & \texttt{TEXT} & Obligatoria y con contenido. \\
+    \texttt{prioridad} & \texttt{VARCHAR(10)} & Baja, Media o Alta. Valor predeterminado en el esquema: Media. \\
+    \texttt{estado} & \texttt{VARCHAR(20)} & Pendiente, En proceso o Resuelta. Valor inicial: Pendiente. \\
+    \texttt{fecha\_creacion} & \texttt{TIMESTAMPTZ} & Se asigna al insertar el registro. \\
+    \texttt{fecha\_actualizacion} & \texttt{TIMESTAMPTZ} & Se asigna al insertar y se actualiza mediante un disparador. \\
+    \bottomrule
+  \end{tabularx}
+  \end{spacing}
+  \notafigura{Datos tomados del esquema \texttt{database/gestor\_incidencias.sql} del repositorio del equipo.}
+\end{minipage}\par
+
+\anexo{B}{Evidencias gráficas del proceso}
+\setcounter{figure}{0}
+\renewcommand{\thefigure}{B\arabic{figure}}
+
+\evidencia{fig:prototipo}{Ruta principal del prototipo}{01-prototipo.png}
+{La respuesta JSON corresponde a la etapa inicial. La aplicación integrada presenta un listado HTML.}
+
+\evidencia{fig:salud}{Respuesta de la ruta de salud}{02-salud.png}
+{La ruta \texttt{/salud} comprueba que Flask está disponible.}
+
+\evidencia{fig:ui-registro}{Formulario y registro de una incidencia}{03-registro.png}
+{Formulario de registro e incorporación de una incidencia al listado.}
+
+\evidencia{fig:ui-filtro}{Edición, estados y filtro de incidencias}{04-edicion-filtro.png}
+{Edición de los datos de un registro y consulta del listado según el estado seleccionado.}
+
+\evidencia{fig:ui-eliminar}{Confirmación y resultado de eliminar una incidencia}{05-eliminacion.png}
+{Confirmación solicitada por la interfaz y estado del listado después de la eliminación.}
+
+\evidencia{fig:docker-config}{Definición de los servicios en Docker Compose}{06-docker-compose.png}
+{Muestra la configuración de \texttt{web} y \texttt{db}, el volumen y la comprobación de salud de la base.}
+
+\evidencia{fig:docker-estado}{Servicios en ejecución}{07-docker-estado.png}
+{Estado de \texttt{web} y \texttt{db} en Docker Compose.}
+
+\evidencia{fig:persistencia}{Persistencia después de reiniciar Flask}{08-persistencia.png}
+{Comparación del mismo identificador antes y después de reiniciar \texttt{web}, con PostgreSQL y el volumen en uso.}
+
+\evidencia{fig:acciones}{Resultados de Pytest en GitHub Actions}{09-github-actions.png}
+{Resultados de Pytest para Python 3.11 y 3.12 y artefactos generados por el flujo.}
+
+\evidencia{fig:repo}{Repositorio compartido y rama principal}{10-repositorio.png}
+{Muestra la vista de código del repositorio grupal.}
+
+\evidencia{fig:pr-docs}{Pull request de la guía de colaboración}{11-pr-documentacion.png}
+{El PR \#1 registra la guía de contribución, la plantilla de revisión y la primera versión del README.}
+
+\evidencia{fig:pr-flask}{Pull request de la aplicación Flask}{12-pr-flask.png}
+{El PR \#2 documenta los cambios del componente web y permite mostrar las revisiones solicitadas.}
+
+\evidencia{fig:regla}{Regla de protección de la rama principal}{13-proteccion-main.png}
+{Configuración del mínimo de aprobaciones exigidas para integrar cambios en la rama principal.}
+
+\evidencia{fig:pr-aislamiento}{Pull request de aislamiento de las pruebas}{14-pr-aislamiento.png}
+{El PR \#10 documenta la separación de la conexión de pruebas y la verificación del nombre de la base.}
+
+\evidencia{fig:readme}{Actualización del README del gestor}{15-readme.png}
+{Documentación incorporada en el PR \#12.}
+
+\end{document}
